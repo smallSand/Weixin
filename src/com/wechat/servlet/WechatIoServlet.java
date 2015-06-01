@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.security.NoSuchAlgorithmException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.wechat.util.WechatController;
+import com.wechat.util.Sha1;
 
 @SuppressWarnings("serial")
 public class WechatIoServlet extends HttpServlet {
@@ -57,6 +60,31 @@ public class WechatIoServlet extends HttpServlet {
 		os.flush();
 		os.close();
 		
+	}
+
+	@Override
+	/*验证token
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out=response.getWriter();
+		String signature=request.getParameter("signature");
+		String timestamp=request.getParameter("timestamp");
+		String nonce=request.getParameter("nonce");
+		String echostr=request.getParameter("echostr");
+		String token="liusonglin";
+	     try {
+			if(signature.equals(Sha1.getSHA1(token, timestamp, nonce))){
+				out.print(echostr);
+			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}finally{
+			out.close();
+		}
 	}
 
 }
